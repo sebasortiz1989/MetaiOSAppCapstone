@@ -10,66 +10,101 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
-
+    @State private var searchText = ""
+    
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+            VStack {
+                List {
+                    ForEach(filteredItems) { item in
+                        NavigationLink {
+                            ItemDetailView(item: item)
+                        } label: {
+                            ItemRowView(item: item)
+                        }
+                    }
+                    .onDelete(perform: deleteItems)
+                }
+                .searchable(text: $searchText, prompt: "Search menu items...")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        EditButton()
+                    }
+                    ToolbarItem {
+                        Button(action: addItem) {
+                            Label("Add Item", systemImage: "plus")
+                        }
                     }
                 }
-                .onDelete(perform: deleteItems)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
+            .navigationTitle("Menu")
         }
     }
-
+    
+    private var filteredItems: [Item] {
+        let fetchRequest: NSFetchRequest<Item> = Item.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)]
+        
+        if !searchText.isEmpty {
+            fetchRequest.predicate = NSPredicate(format: "timestamp CONTAINS[cd] %@", searchText)
+        }
+        
+        do {
+            return try viewContext.fetch(fetchRequest)
+        } catch {
+            print("Error fetching filtered items: \(error)")
+            return []
+        }
+    }
+    
     private func addItem() {
         withAnimation {
             let newItem = Item(context: viewContext)
             newItem.timestamp = Date()
-
+            
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
-
+    
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
+            offsets.map { filteredItems[$0] }.forEach(viewContext.delete)
+            
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
+        }
+    }
+}
+
+struct ItemRowView: View {
+    let item: Item
+    
+    var body: some View {
+        HStack {
+            Text(item.timestamp!, formatter: itemFormatter)
+            Spacer()
+            // You can add more details here if Item has more properties
+        }
+    }
+}
+
+struct ItemDetailView: View {
+    let item: Item
+    
+    var body: some View {
+        VStack {
+            Text("Item Details")
+            Text("Timestamp: \(item.timestamp!, formatter: itemFormatter)")
+            // Add more details here
         }
     }
 }
