@@ -49,9 +49,13 @@ struct PersistenceController {
         }
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                print(error)
             }
         })
+        
+        // Keep the one in the database and forget about the new one added
+        container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyStoreTrump
+
         container.viewContext.automaticallyMergesChangesFromParent = true
     }
 }
