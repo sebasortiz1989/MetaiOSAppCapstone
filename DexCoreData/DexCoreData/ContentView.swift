@@ -25,7 +25,7 @@ struct ContentView: View {
                     } label: {
                         Text(pokemon.name ?? "no name")
                     }
-                }ç
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
