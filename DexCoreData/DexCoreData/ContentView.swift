@@ -17,6 +17,7 @@ struct ContentView: View {
     ) private var pokedex
     
     @State private var searchText: String = ""
+    @State private var filterByFavorite: Bool = false
     
     let fetcher = FetchService()
     
@@ -29,6 +30,9 @@ struct ContentView: View {
         }
         
         // Filter by favorite predicate
+        if filterByFavorite {
+            predicates.append(NSPredicate(format: "favorite == %d", true))
+        }
         
         // Combine predicates
         
@@ -63,6 +67,13 @@ struct ContentView: View {
                                         )
                                     Text(pokemon.name!.capitalized)
                                         .fontWeight(.bold)
+                                    
+                                    Spacer()
+                     
+                                    if pokemon.favorite {
+                                        Image(systemName: "star.fill")
+                                            .foregroundColor(.yellow)
+                                    }
                                 }
                                 
                                 HStack {
@@ -88,12 +99,20 @@ struct ContentView: View {
             .onChange(of: searchText) {
                 pokedex.nsPredicate = dynamicPredicate
             }
+            .onChange(of: filterByFavorite) {
+                pokedex.nsPredicate = dynamicPredicate
+            }
             .navigationDestination(for: Pokemon.self) { pokemon in
                 Text(pokemon.name ?? "no name")
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                    Button {
+                        filterByFavorite.toggle()
+                    } label: {
+                        Label("Filter By Favorites", systemImage: filterByFavorite ? "star.fill" :"star")
+                    }
+                    .tint(.yellow)
                 }
                 ToolbarItem {
                     Button("Add Item", systemImage: "plus") {
@@ -106,7 +125,7 @@ struct ContentView: View {
     
     private func getPokemon() {
         Task {
-            for id in 1...151 {
+            for id in 1...250 {
                 do {
                     let fetchedPokemon = try await fetcher.fetchPokemons(id)
                     let pokemon = Pokemon(context: viewContext)
