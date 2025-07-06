@@ -20,6 +20,8 @@ struct ContentView: View {
     @State private var filterByFavorite: Bool = false
     
     let fetcher = FetchService()
+   
+    let totalNumberOfPokemons: Int = 150
     
     private var dynamicPredicate: NSPredicate {
         var predicates: [NSPredicate] = []
@@ -40,94 +42,121 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(pokedex) { pokemon in
-                    NavigationLink(value: pokemon) {
-                        HStack {
-                            AsyncImage(url: pokemon.sprite) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            .frame(width: 100, height: 100)
-                            
-                            VStack(alignment: .leading) {
+        if pokedex.isEmpty {
+            ContentUnavailableView {
+                Label("No Pokemon", image: .nopokemon)
+            } description: {
+                Text("There aren't any Pokemon yet. \nFetch some Pokemon to get started!")
+            } actions: {
+                Button("Fetch Pokemon", systemImage: "antenna.radiowaves.left.and.right") {
+                    getPokemon(from: 1)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        } else {
+            NavigationStack {
+                List {
+                    Section {
+                        ForEach(pokedex) { pokemon in
+                            NavigationLink(value: pokemon) {
                                 HStack {
-                                    Circle()
-                                        .fill(Color.accentColor)
-                                        .frame(width: 30, height: 30)
-                                        .overlay(
-                                            Text("\(pokemon.id)")
-                                                .foregroundStyle(.white)
-                                                .font(.system(size: 12))
-                                                .fontWeight(.bold)
-                                        )
-                                    Text(pokemon.name!.capitalized)
-                                        .fontWeight(.bold)
-                                    
-                                    Spacer()
-                     
-                                    if pokemon.favorite {
-                                        Image(systemName: "star.fill")
-                                            .foregroundColor(.yellow)
+                                    AsyncImage(url: pokemon.sprite) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFit()
+                                    } placeholder: {
+                                        ProgressView()
                                     }
-                                }
-                                
-                                HStack {
-                                    ForEach(pokemon.types!, id: \.self) { type in
-                                        Text(type.capitalized)
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundStyle(.black)
-                                            .padding(.horizontal, 13)
-                                            .padding(.vertical, 5)
-                                            .background(Color(type.capitalized))
-                                            .clipShape(.capsule)
+                                    .frame(width: 100, height: 100)
+                                    
+                                    VStack(alignment: .leading) {
+                                        HStack {
+                                            Circle()
+                                                .fill(Color.accentColor)
+                                                .frame(width: 30, height: 30)
+                                                .overlay(
+                                                    Text("\(pokemon.id)")
+                                                        .foregroundStyle(.white)
+                                                        .font(.system(size: 12))
+                                                        .fontWeight(.bold)
+                                                )
+                                            Text(pokemon.name!.capitalized)
+                                                .fontWeight(.bold)
+                                            
+                                            Spacer()
+                                            
+                                            if pokemon.favorite {
+                                                Image(systemName: "star.fill")
+                                                    .foregroundColor(.yellow)
+                                            }
+                                        }
+                                        
+                                        HStack {
+                                            ForEach(pokemon.types!, id: \.self) { type in
+                                                Text(type.capitalized)
+                                                    .font(.subheadline)
+                                                    .fontWeight(.semibold)
+                                                    .foregroundStyle(.black)
+                                                    .padding(.horizontal, 13)
+                                                    .padding(.vertical, 5)
+                                                    .background(Color(type.capitalized))
+                                                    .clipShape(.capsule)
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                    } footer: {
+                        if pokedex.count < totalNumberOfPokemons {
+                            ContentUnavailableView {
+                                Label("Missing Pokemon", image: .nopokemon)
+                            } description: {
+                                Text("The fetch was interrupted!\nFetch the rest of the Pokemon.")
+                            } actions: {
+                                Button("Fetch Pokemon", systemImage: "antenna.radiowaves.left.and.right") {
+                                    getPokemon(from: pokedex.count + 1)
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                        }
+                    }
+
+                }
+                .navigationTitle("Pokedex")
+                .searchable(text: $searchText, prompt: "Find a Pokemon")
+                .autocorrectionDisabled()
+                .onChange(of: searchText) {
+                    pokedex.nsPredicate = dynamicPredicate
+                }
+                .onChange(of: filterByFavorite) {
+                    pokedex.nsPredicate = dynamicPredicate
+                }
+                .navigationDestination(for: Pokemon.self) { pokemon in
+                    Text(pokemon.name ?? "no name")
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            filterByFavorite.toggle()
+                        } label: {
+                            Label("Filter By Favorites", systemImage: filterByFavorite ? "star.fill" :"star")
+                        }
+                        .tint(.yellow)
                     }
                 }
             }
-            .navigationTitle("Pokedex")
-            .searchable(text: $searchText, prompt: "Find a Pokemon")
-            .autocorrectionDisabled()
-            .onChange(of: searchText) {
-                pokedex.nsPredicate = dynamicPredicate
-            }
-            .onChange(of: filterByFavorite) {
-                pokedex.nsPredicate = dynamicPredicate
-            }
-            .navigationDestination(for: Pokemon.self) { pokemon in
-                Text(pokemon.name ?? "no name")
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        filterByFavorite.toggle()
-                    } label: {
-                        Label("Filter By Favorites", systemImage: filterByFavorite ? "star.fill" :"star")
-                    }
-                    .tint(.yellow)
-                }
-                ToolbarItem {
-                    Button("Add Item", systemImage: "plus") {
-                        getPokemon()
-                    }
-                }
-            }
+            //        .task {
+            //            getPokemon()
+            //        }
         }
     }
     
-    private func getPokemon() {
+    private func getPokemon(from id: Int) {
         Task {
-            for id in 1...250 {
+            for i in id...totalNumberOfPokemons {
                 do {
-                    let fetchedPokemon = try await fetcher.fetchPokemons(id)
+                    let fetchedPokemon = try await fetcher.fetchPokemons(i)
                     let pokemon = Pokemon(context: viewContext)
                     
                     pokemon.id = fetchedPokemon.id
