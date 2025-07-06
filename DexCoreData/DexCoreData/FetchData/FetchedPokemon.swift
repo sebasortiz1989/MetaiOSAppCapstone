@@ -17,8 +17,8 @@ struct FetchedPokemon: Decodable {
     let specialAttack: Int16
     let specialDefense: Int16
     let speed: Int16
-    let sprint: URL
-    let shinySprint: URL
+    let sprite: URL
+    let shinySprite: URL
     
     enum CodingKeys: CodingKey {
         case id
@@ -37,11 +37,11 @@ struct FetchedPokemon: Decodable {
         
         enum StatDictionaryKeys: CodingKey {
             case baseStat
-//            case stat
-//            
-//            enum StatKeys: CodingKey {
-//                case name
-//            }
+            case stat
+            
+            enum StatKeys: CodingKey {
+                case name
+            }
         }
         
         enum SpriteDictionaryKeys: String, CodingKey {
@@ -71,28 +71,51 @@ struct FetchedPokemon: Decodable {
         
         types = decodedTypes
         
-        var decodedStats: [Int16] = []
+        var hpTemp: Int16 = 0;
+        var attackTemp: Int16 = 0;
+        var defenseTemp: Int16 = 0;
+        var specialAttackTemp: Int16 = 0;
+        var specialDefenseTemp: Int16 = 0;
+        var speedTemp: Int16 = 0;
+
         var statsContainer = try container.nestedUnkeyedContainer(forKey: .stats)
         while !statsContainer.isAtEnd {
             let statsDictionaryContainer = try statsContainer.nestedContainer(keyedBy: CodingKeys.StatDictionaryKeys.self)
             let stat = try statsDictionaryContainer.decode(Int16.self, forKey: .baseStat)
-            decodedStats.append(stat)
-//            let statContainer = try statsDictionaryContainer.nestedContainer(
-//                keyedBy: CodingKeys.StatDictionaryKeys.StatKeys.self,
-//                forKey: .stat)
-//            
-//            let name = try statContainer.decode(String.self, forKey: .name)
+
+            let statContainer = try statsDictionaryContainer.nestedContainer(
+                keyedBy: CodingKeys.StatDictionaryKeys.StatKeys.self,
+                forKey: .stat)
+            
+            let name = try statContainer.decode(String.self, forKey: .name)
+            
+            switch name {
+                case "hp":
+                    hpTemp = stat
+                case "attack":
+                    attackTemp = stat
+                case "defense":
+                    defenseTemp = stat
+                case "special-attack":
+                    specialAttackTemp = stat
+                case "special-defense":
+                    specialDefenseTemp = stat
+                case "speed":
+                    speedTemp = stat
+                default:
+                    break
+            }
         }
         
-        hp = decodedStats[0]
-        attack = decodedStats[1]
-        defense = decodedStats[2]
-        specialAttack = decodedStats[3]
-        specialDefense = decodedStats[4]
-        speed = decodedStats[5]
+        hp = hpTemp
+        attack = attackTemp
+        defense = defenseTemp
+        specialAttack = specialAttackTemp
+        specialDefense = specialDefenseTemp
+        speed = speedTemp
 
         let spriteContainer = try container.nestedContainer(keyedBy: CodingKeys.SpriteDictionaryKeys.self, forKey: .sprites)
-        sprint = try spriteContainer.decode(URL.self, forKey: .sprite)
-        shinySprint = try spriteContainer.decode(URL.self, forKey: .shinySprite)
+        sprite = try spriteContainer.decode(URL.self, forKey: .sprite)
+        shinySprite = try spriteContainer.decode(URL.self, forKey: .shinySprite)
     }
 }
