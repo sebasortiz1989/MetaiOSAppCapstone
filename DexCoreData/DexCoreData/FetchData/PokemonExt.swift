@@ -1,0 +1,58 @@
+//
+//  PoemonExt.swift
+//  DexCoreData
+//
+//  Created by Sebastian Ortiz on 06/07/25.
+//
+
+import SwiftUI
+
+extension Pokemon {
+    var background: ImageResource {
+        switch types![0] {
+        case "rock", "ground", "steel", "fighting", "ghost", "dark", "psychic":
+                .rockgroundsteelfightingghostdarkpsychic
+        case "fire", "dragon":
+                .firedragon
+        case "bug", "flying":
+                .flyingbug
+        case "normal", "grass", "electric", "poison", "fairy":
+                .normalgrasselectricpoisonfairy
+        case "water":
+                .water
+        case "ice":
+                .ice
+        default:
+                .normalgrasselectricpoisonfairy
+        }
+    }
+    
+    var typeColor: Color {
+        Color(types![0].capitalized)
+    }
+    
+    var stats: [Stat] {
+        [
+            Stat(id: 1, name: "HP", value: hp),
+            Stat(id: 2, name: "Attack", value: attack),
+            Stat(id: 3, name: "Defense", value: defense),
+            Stat(id: 4, name: "Special Attack", value: specialAttack),
+            Stat(id: 5, name: "Special Defense", value: specialDefense),
+            Stat(id: 6, name: "Speed", value: speed)
+        ]
+    }
+    
+    var highestStatOld: Stat {
+        stats.max { stat1, stat2 in
+            stat1.value < stat2.value
+        }!
+    }
+    
+    var highestStat: Stat { stats.max { $0.value < $1.value }! }
+}
+
+struct Stat: Identifiable {
+    let id:Int
+    let name:String
+    let value: Int16
+}
