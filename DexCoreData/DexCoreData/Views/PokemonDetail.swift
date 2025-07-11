@@ -13,7 +13,6 @@ struct PokemonDetail: View {
     
     @State private var showShiny: Bool = false
     
-    
     var body: some View {
         ScrollView {
             ZStack {
@@ -22,7 +21,7 @@ struct PokemonDetail: View {
                     .scaledToFit()
                     .shadow(color: .black, radius: 6)
                 
-                AsyncImage(url: pokemon.sprite) { image in
+                AsyncImage(url: showShiny ? pokemon.shinySprite : pokemon.sprite) { image in
                     image
                         .interpolation(.none)
                         .resizable()
@@ -72,6 +71,18 @@ struct PokemonDetail: View {
             StatsView(pokemon: pokemon)
         }
         .navigationTitle(pokemon.name!.capitalized)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showShiny.toggle()
+                } label: {
+                    Image(systemName: showShiny ?
+                            "wand.and.stars" :
+                            "wand.and.stars.inverse")
+                    .tint(showShiny ? .yellow : .primary)
+                }
+            }
+        }
     }
 }
 

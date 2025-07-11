@@ -60,13 +60,22 @@ struct FetchedPokemon: Decodable {
         var decodedTypes: [String] = []
         var typesContainer = try container.nestedUnkeyedContainer(forKey: .types)
         while !typesContainer.isAtEnd {
-            let typesDictionatyContainer = try typesContainer.nestedContainer(keyedBy: CodingKeys.TypeDictionaryKeys.self)
-            let typeContainer = try typesDictionatyContainer.nestedContainer(
+            let typesDictionaryContainer = try typesContainer.nestedContainer(keyedBy: CodingKeys.TypeDictionaryKeys.self)
+            let typeContainer = try typesDictionaryContainer.nestedContainer(
                 keyedBy: CodingKeys.TypeDictionaryKeys.TypeKeys.self,
                 forKey: .type)
             
             let type = try typeContainer.decode(String.self, forKey: .name)
             decodedTypes.append(type)
+        }
+        
+        if (decodedTypes.count > 1) {
+            if (decodedTypes[0] == "normal") {
+//                let tempType = decodedTypes[0]
+//                decodedTypes[0] = decodedTypes[1]
+//                decodedTypes[1] = tempType
+                decodedTypes.swapAt(0, 1)
+            }
         }
         
         types = decodedTypes
