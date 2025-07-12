@@ -26,7 +26,7 @@ struct ContentView: View {
     
     let fetcher = FetchService()
    
-    let totalNumberOfPokemons: Int = 150
+    let totalNumberOfPokemons: Int = 151
     
     private var dynamicPredicate: NSPredicate {
         var predicates: [NSPredicate] = []
