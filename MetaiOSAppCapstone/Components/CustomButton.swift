@@ -5,14 +5,15 @@ struct CustomButton: View {
     let action: () -> Void
     var backgroundColor: Color = .mint
     var textColor: Color = .black
-    var width: CGFloat = 300
-    var height: CGFloat = 50
     var font: Font = .title3
+    var minWidth: CGFloat? = nil
+    var minHeight: CGFloat? = nil
     
     var body: some View {
         Button(action: action) {
             Text(title)
-                .frame(width: width, height: height)
+                .padding()
+                .frame(minWidth: minWidth, minHeight: minHeight)
                 .background(backgroundColor)
                 .foregroundColor(textColor)
                 .font(font)

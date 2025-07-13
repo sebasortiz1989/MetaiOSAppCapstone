@@ -10,6 +10,7 @@ import SwiftUI
 let kFirstName = "Seba"
 let kLastName = "Ortiz"
 let kEmail = "seba@gmail.com"
+let kIsLoggedIn = "kIsLoggedIn"
 
 struct Onboarding: View {
     @State var firstName = ""
@@ -33,28 +34,42 @@ struct Onboarding: View {
                 
                 CustomTextField(placeholder: "Email", text: $email, keyboardType: .emailAddress)
                 
-                CustomButton(title: "Register") {
-                    if !firstName.isEmpty && !lastName.isEmpty && !email.isEmpty {
-                        // Optional: Add email validation here
-                        if isValidEmail(email) {
-                            UserDefaults.standard.set(firstName, forKey: kFirstName)
-                            UserDefaults.standard.set(lastName, forKey: kLastName)
-                            UserDefaults.standard.set(email, forKey: kEmail)
-                            
-                            // Here you would navigate to the Home screen
-                            print("Registration successful!")
-                            isLoggedIn = true
+                CustomButton(
+                    title: "Register",
+                    action:
+                    {
+                        if !firstName.isEmpty && !lastName.isEmpty && !email.isEmpty {
+                            // Optional: Add email validation here
+                            if isValidEmail(email) {
+                                UserDefaults.standard.set(firstName, forKey: kFirstName)
+                                UserDefaults.standard.set(lastName, forKey: kLastName)
+                                UserDefaults.standard.set(email, forKey: kEmail)
+                                
+                                // Here you would navigate to the Home screen
+                                print("Registration successful!")
+                                isLoggedIn = true
+                            } else {
+                                print("Invalid email")
+                                isLoggedIn = false
+                            }
                         } else {
-                            print("Invalid email")
+                            print("Please fill in all fields")
                             isLoggedIn = false
                         }
-                    } else {
-                        print("Please fill in all fields")
-                        isLoggedIn = false
-                    }
-                }
+                        
+                        UserDefaults.standard.set(isLoggedIn, forKey: kIsLoggedIn)
+                    },
+                    minWidth: 150)
             }
             .padding()
+            .onAppear(){
+                if UserDefaults.standard.bool(forKey: kIsLoggedIn) {
+                    isLoggedIn = true
+                }
+                else {
+                    isLoggedIn = false
+                }
+            }
         }
     }
     

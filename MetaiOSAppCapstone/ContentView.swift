@@ -15,53 +15,25 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                List {
-                    ForEach(filteredItems) { item in
-                        NavigationLink {
-                            ItemDetailView(item: item)
-                        } label: {
-                            ItemRowView(item: item)
-                        }
-                    }
-                    .onDelete(perform: deleteItems)
+                
+            }
+            .searchable(text: $searchText, prompt: "Search menu items...")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
                 }
-                .searchable(text: $searchText, prompt: "Search menu items...")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        EditButton()
-                    }
-                    ToolbarItem {
-                        Button(action: addItem) {
-                            Label("Add Item", systemImage: "plus")
-                        }
+                ToolbarItem {
+                    Button(action: addDish) {
+                        Label("Add Item", systemImage: "plus")
                     }
                 }
             }
-            .navigationTitle("Menu")
         }
+        .navigationTitle("Menu")
     }
     
-    private var filteredItems: [Item] {
-        let fetchRequest: NSFetchRequest<Item> = Item.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)]
-        
-        if !searchText.isEmpty {
-            fetchRequest.predicate = NSPredicate(format: "timestamp CONTAINS[cd] %@", searchText)
-        }
-        
-        do {
-            return try viewContext.fetch(fetchRequest)
-        } catch {
-            print("Error fetching filtered items: \(error)")
-            return []
-        }
-    }
-    
-    private func addItem() {
+    private func addDish() {
         withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-            
             do {
                 try viewContext.save()
             } catch {
@@ -71,50 +43,30 @@ struct ContentView: View {
         }
     }
     
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { filteredItems[$0] }.forEach(viewContext.delete)
-            
-            do {
-                try viewContext.save()
-            } catch {
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+    struct DishRowView: View {
+        let item: Dish
+        
+        var body: some View {
+            HStack {
+                Text(item.name!)
+                Spacer()
+                // You can add more details here if Item has more properties
+            }
+        }
+    }
+    
+    struct DishDetailView: View {
+        let item: Dish
+        
+        var body: some View {
+            VStack {
+                Text("Item Details")
+                Text("Timestamp: \(item.name ?? "default value")")
+                // Add more details here
             }
         }
     }
 }
-
-struct ItemRowView: View {
-    let item: Item
-    
-    var body: some View {
-        HStack {
-            Text(item.timestamp!, formatter: itemFormatter)
-            Spacer()
-            // You can add more details here if Item has more properties
-        }
-    }
-}
-
-struct ItemDetailView: View {
-    let item: Item
-    
-    var body: some View {
-        VStack {
-            Text("Item Details")
-            Text("Timestamp: \(item.timestamp!, formatter: itemFormatter)")
-            // Add more details here
-        }
-    }
-}
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
 
 #Preview {
     ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
