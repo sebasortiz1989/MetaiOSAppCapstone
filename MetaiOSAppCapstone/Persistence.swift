@@ -1,11 +1,5 @@
-//
-//  Persistence.swift
-//  MetaiOSAppCapstone
-//
-//  Created by Sebastian Ortiz on 23/06/25.
-//
-
 import CoreData
+import Foundation
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -13,8 +7,8 @@ struct PersistenceController {
     let container: NSPersistentContainer
     
     init() {
-        container = NSPersistentContainer(name: "ExampleDatabase")
-        // container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
+        container = NSPersistentContainer(name: "MetaiOSAppCapstone")
+        container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         container.loadPersistentStores(completionHandler: {_,_ in })
         container.viewContext.automaticallyMergesChangesFromParent = true
     }

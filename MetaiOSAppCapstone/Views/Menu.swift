@@ -9,22 +9,15 @@ import SwiftUI
 
 struct Menu: View {
     @Environment(\.managedObjectContext) private var viewContext
+
     @ObservedObject var dishesModel = DishesModel()
     @State var searchText = ""
     @State private var menuItems: [MenuItem] = []
-    
-    static private var sortDescriptors: [NSSortDescriptor] {
-        [NSSortDescriptor(key: "name",
-                          ascending: true,
-                          selector:
-                            #selector(NSString.localizedStandardCompare))]
-    }
-    
-    @FetchRequest(
-        sortDescriptors:
-            [NSSortDescriptor(keyPath: \Dish.name, ascending: true)],
-        animation: .default)
-    private var dishesT: FetchedResults<Dish>
+
+    @FetchRequest<Dish>(
+        sortDescriptors: [SortDescriptor(\.name)],
+        animation: .default,
+    ) private var dishesT
     
     var body: some View {
         VStack {
@@ -62,13 +55,6 @@ struct Menu: View {
         return searchText == "" ?
         NSPredicate(value: true) :
         NSPredicate(format: "name CONTAINS[cd] %@", searchText)
-    }
-    
-    private func buildSortDescriptors() -> [NSSortDescriptor] {
-        [NSSortDescriptor(key: "name",
-                          ascending: true,
-                          selector:
-                            #selector(NSString.localizedStandardCompare))]
     }
 }
 
