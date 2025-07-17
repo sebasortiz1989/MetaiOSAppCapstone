@@ -48,7 +48,7 @@ struct ContentView: View {
         
         var body: some View {
             HStack {
-                Text(item.name!)
+                Text(item.title!)
                 Spacer()
                 // You can add more details here if Item has more properties
             }
@@ -61,7 +61,7 @@ struct ContentView: View {
         var body: some View {
             VStack {
                 Text("Item Details")
-                Text("Timestamp: \(item.name ?? "default value")")
+                Text("Timestamp: \(item.title ?? "default value")")
                 // Add more details here
             }
         }

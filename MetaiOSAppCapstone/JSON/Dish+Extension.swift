@@ -11,8 +11,8 @@ extension Dish {
                 continue
             }
             let oneDish = Dish(context: context)
-            oneDish.name = menuItem.title
-            if let price = Float(menuItem.price) {
+            oneDish.title = menuItem.title
+            if let price = menuItem.price {
                 oneDish.price = price
             }
         }

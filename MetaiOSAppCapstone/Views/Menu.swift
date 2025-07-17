@@ -1,23 +1,21 @@
-//
-//  Menu.swift
-//  MetaiOSAppCapstone
-//
-//  Created by Sebastian Ortiz on 02/07/25.
-//
-
 import SwiftUI
+import CoreData
 
 struct Menu: View {
+    let persistenceController = PersistenceController.shared
+
     @Environment(\.managedObjectContext) private var viewContext
 
     @ObservedObject var dishesModel = DishesModel()
     @State var searchText = ""
     @State private var menuItems: [MenuItem] = []
 
+    let urlString = "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json"
+
     @FetchRequest<Dish>(
-        sortDescriptors: [SortDescriptor(\.name)],
-        animation: .default,
-    ) private var dishesT
+        sortDescriptors: [SortDescriptor(\.title)],
+        animation: .default
+    ) private var dishesT: FetchedResults<Dish>
     
     var body: some View {
         VStack {
@@ -36,18 +34,70 @@ struct Menu: View {
                 .font(Font.system(size: 24, weight: .regular))
                 .padding()
      
-            List(menuItems) { item in
-                Text(item.title)
+            List(dishesT) { dish in
+                Text(dish.title ?? "No Title")
             }
         }
         .onAppear {
             Task {
                 do {
-                    menuItems = try await MenuList.getMenuData()
+                    menuItems = try await getMenuData()
                 } catch {
                     print("Error fetching menu: \(error)")
                 }
             }
+        }
+    }
+    
+    enum FetchError: Error {
+        case badResponse
+        case invalidData
+        case decodingError(Error)
+    }
+
+    func getMenuData() async throws -> [MenuItem] {
+        persistenceController.clear()
+        
+        guard let baseURL = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+        
+        let request = URLRequest(url: baseURL)
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                throw FetchError.badResponse
+            }
+            
+            do {
+                let fullMenu = try JSONDecoder().decode(JSONMenu.self, from: data)
+                
+                for item in fullMenu.menu {
+                    let newDish = Dish(context: viewContext)
+                    newDish.title = item.title
+                    newDish.price = Float(item.price) ?? 0
+                    newDish.image = item.image
+                    newDish.dishDescription = item.description
+                    newDish.category = item.category
+                }
+
+                do {
+                    try viewContext.save()
+                    print("Menu items saved successfully")
+                } catch {
+                    print("Error saving context after adding dishes: \(error)")
+                }
+                
+                return fullMenu.menu
+                
+            } catch {
+                throw FetchError.decodingError(error)
+            }
+            
+        } catch {
+            throw error
         }
     }
     
