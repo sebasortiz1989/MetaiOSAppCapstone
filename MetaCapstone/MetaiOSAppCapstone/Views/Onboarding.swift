@@ -27,7 +27,14 @@ struct Onboarding: View {
                 ) {
                     EmptyView()
                 }
-                
+               
+                Image("littleLemonLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200)
+                    .padding()
+
+                LittleLemonTitleView()
                 CustomTextField(placeholder: "First Name", text: $firstName)
                 
                 CustomTextField(placeholder: "Last Name", text: $lastName)
@@ -39,13 +46,11 @@ struct Onboarding: View {
                     action:
                     {
                         if !firstName.isEmpty && !lastName.isEmpty && !email.isEmpty {
-                            // Optional: Add email validation here
                             if isValidEmail(email) {
                                 UserDefaults.standard.set(firstName, forKey: kFirstName)
                                 UserDefaults.standard.set(lastName, forKey: kLastName)
                                 UserDefaults.standard.set(email, forKey: kEmail)
-                                
-                                // Here you would navigate to the Home screen
+
                                 print("Registration successful!")
                                 isLoggedIn = true
                             } else {
@@ -59,7 +64,9 @@ struct Onboarding: View {
                         
                         UserDefaults.standard.set(isLoggedIn, forKey: kIsLoggedIn)
                     },
-                    minWidth: 150)
+                    minWidth: 350)
+                
+                Spacer()
             }
             .padding()
             .onAppear(){
