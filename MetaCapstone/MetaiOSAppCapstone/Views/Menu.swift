@@ -101,7 +101,7 @@ struct Menu: View {
                     .navigationTitle(dish.title ?? "Dish Details")
                 }
                 .onChange(of: searchText) {
-                    dishesT.nsPredicate = dynamicPredicate
+                    dishesT.nsPredicate = buildPredicate()
                 }
             }
 
@@ -174,7 +174,7 @@ struct Menu: View {
     private func buildPredicate() -> NSPredicate {
         return searchText == "" ?
         NSPredicate(value: true) :
-        NSPredicate(format: "name CONTAINS[cd] %@", searchText)
+        NSPredicate(format: "title CONTAINS[cd] %@", searchText)
     }
 }
 
