@@ -15,7 +15,18 @@ struct Menu: View {
     @FetchRequest<Dish>(
         sortDescriptors: [SortDescriptor(\.title)],
         animation: .default
-    ) private var dishesT: FetchedResults<Dish>
+    ) private var dishesT
+    
+    private var dynamicPredicate: NSPredicate {
+        var predicates: [NSPredicate] = []
+        
+        // Search predicate
+        if (!searchText.isEmpty) {
+            predicates.append(NSPredicate(format: "title contains[c] %@", searchText))
+        }
+        
+        return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+    }
     
     var body: some View {
         VStack {
@@ -54,6 +65,7 @@ struct Menu: View {
                         }
                     }
                 }
+                .searchable(text: $searchText, prompt: "Search a dish")
                 .navigationDestination(for: Dish.self) { dish in
                     ScrollView {
                         VStack(alignment: .leading, spacing: 10) {
@@ -87,6 +99,9 @@ struct Menu: View {
                         .padding()
                     }
                     .navigationTitle(dish.title ?? "Dish Details")
+                }
+                .onChange(of: searchText) {
+                    dishesT.nsPredicate = dynamicPredicate
                 }
             }
 
