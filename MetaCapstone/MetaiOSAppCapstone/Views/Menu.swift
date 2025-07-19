@@ -3,24 +3,24 @@ import CoreData
 
 struct Menu: View {
     let persistenceController = PersistenceController.shared
-
+    
     @Environment(\.managedObjectContext) private var viewContext
-
+    
     @ObservedObject var dishesModel = DishesModel()
-    @Binding var searchText:String
+    @Binding var searchText: String
     @State private var menuItems: [MenuItem] = []
-
+    
     let urlString = "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json"
-
+    
     @FetchRequest<Dish>(
         sortDescriptors: [SortDescriptor(\.title)],
         animation: .default
-    ) private var dishesT
+    ) private var dishesT: FetchedResults<Dish>
     
     var body: some View {
-        VStack {    
+        VStack {
             NavigationStack {
-                List {
+                VStack {
                     ForEach(dishesT) { dish in
                         NavigationLink(value: dish) {
                             HStack(alignment: .center, spacing: 10) {
@@ -28,14 +28,19 @@ struct Menu: View {
                                     Text("\(dish.title ?? "")")
                                         .font(.title3)
                                         .fontWeight(.semibold)
+                                        .foregroundColor(.black)
                                     Text("\(dish.dishDescription ?? "")")
                                         .font(.headline)
                                         .foregroundStyle(.secondary)
+                                        .foregroundColor(.black)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .lineLimit(nil)
                                     Text("$\(String(format: "%.2f", dish.price))")
                                         .font(.title3)
                                         .fontWeight(.semibold)
                                         .foregroundStyle(Color.primary1)
                                 }
+                                
                                 Spacer()
                                 AsyncImage(url: URL(string: dish.image ?? "")) { image in
                                     image
@@ -47,49 +52,56 @@ struct Menu: View {
                                     ProgressView()
                                 }
                             }
-                            .listRowBackground(Color.clear)
+                            .padding(.horizontal) // Add horizontal padding
+                            .padding(.vertical, 8) // Add vertical padding
                         }
                     }
+                    Spacer()
                 }
                 .navigationDestination(for: Dish.self) { dish in
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(dish.title ?? "No Title")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                            
-                            AsyncImage(url: URL(string: dish.image ?? "")) { phase in
-                                switch phase {
-                                case .empty:
-                                    ProgressView()
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(maxWidth: .infinity, maxHeight: 200)
-                                case .failure:
-                                    Image(systemName: "photo")
-                                        .frame(maxWidth: .infinity, maxHeight: 200)
-                                @unknown default:
-                                    EmptyView()
-                                }
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(dish.title ?? "No Title")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                        
+                        AsyncImage(url: URL(string: dish.image ?? "")) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxWidth: .infinity, maxHeight: 200)
+                            case .failure:
+                                Image(systemName: "photo")
+                                    .frame(maxWidth: .infinity, maxHeight: 200)
+                            @unknown default:
+                                EmptyView()
                             }
-                            
-                            Text(dish.dishDescription ?? "No Description")
-                                .font(.body)
-                            
-                            Text("Price: $\(String(format: "%.2f", dish.price))")
-                                .font(.headline)
                         }
-                        .padding()
+                        
+                        Text("\(dish.dishDescription ?? "")")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                            .foregroundColor(.black)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(nil)
+                        
+                        Text("Price: $\(String(format: "%.2f", dish.price))")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.primary1)
+                        
+                        Spacer()
                     }
+                    .padding()
                     .navigationTitle(dish.title ?? "Dish Details")
                 }
                 .onChange(of: searchText) {
                     dishesT.nsPredicate = buildPredicate()
                 }
             }
-
         }
         .onAppear {
             Task {
@@ -109,7 +121,7 @@ struct Menu: View {
         case invalidData
         case decodingError(Error)
     }
-
+    
     func getMenuData() async throws -> [MenuItem] {
         persistenceController.clear()
         
@@ -137,7 +149,7 @@ struct Menu: View {
                     newDish.dishDescription = item.description
                     newDish.category = item.category
                 }
-
+                
                 do {
                     try viewContext.save()
                     print("Menu items saved successfully")

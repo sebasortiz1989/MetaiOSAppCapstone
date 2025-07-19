@@ -28,7 +28,7 @@ struct Home: View {
                             Spacer()
                             
                             NavigationLink(destination: UserProfile()) {
-                                Image("profile-image-placeholder")
+                                Image("profile-image-placeholder2")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 50, height: 50)
@@ -81,8 +81,7 @@ struct Home: View {
                     
                     Menu(searchText: $searchText)
                         .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                        .frame(height: 500)
-                        .padding(.horizontal, -20)
+                        .frame(minHeight: 500)
                 }
 
             }
