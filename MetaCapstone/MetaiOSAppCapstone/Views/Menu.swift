@@ -7,7 +7,7 @@ struct Menu: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     @ObservedObject var dishesModel = DishesModel()
-    @State var searchText = ""
+    @Binding var searchText:String
     @State private var menuItems: [MenuItem] = []
 
     let urlString = "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json"
@@ -17,50 +17,40 @@ struct Menu: View {
         animation: .default
     ) private var dishesT
     
-    private var dynamicPredicate: NSPredicate {
-        var predicates: [NSPredicate] = []
-        
-        // Search predicate
-        if (!searchText.isEmpty) {
-            predicates.append(NSPredicate(format: "title contains[c] %@", searchText))
-        }
-        
-        return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-    }
-    
     var body: some View {
         VStack {    
             NavigationStack {
                 List {
                     ForEach(dishesT) { dish in
                         NavigationLink(value: dish) {
-                            HStack {
-                                Text("\(dish.title ?? "No Title") - $\(String(format: "%.2f", dish.price))")
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                
-                                AsyncImage(url: URL(string: dish.image ?? "")) { phase in
-                                    switch phase {
-                                    case .empty:
-                                        ProgressView()
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 50, height: 50)
-                                    case .failure:
-                                        Image(systemName: "photo")
-                                            .frame(width: 50, height: 50)
-                                    @unknown default:
-                                        Image(systemName: "photo")
-                                            .frame(width: 50, height: 50)
-                                    }
+                            HStack(alignment: .center, spacing: 10) {
+                                VStack(alignment: .leading, spacing: 7) {
+                                    Text("\(dish.title ?? "")")
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                    Text("\(dish.dishDescription ?? "")")
+                                        .font(.headline)
+                                        .foregroundStyle(.secondary)
+                                    Text("$\(String(format: "%.2f", dish.price))")
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(Color.primary1)
+                                }
+                                Spacer()
+                                AsyncImage(url: URL(string: dish.image ?? "")) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 70, height: 70)
+                                        .cornerRadius(10)
+                                } placeholder: {
+                                    ProgressView()
                                 }
                             }
+                            .listRowBackground(Color.clear)
                         }
                     }
                 }
-                .searchable(text: $searchText, prompt: "Search a dish")
                 .navigationDestination(for: Dish.self) { dish in
                     ScrollView {
                         VStack(alignment: .leading, spacing: 10) {
@@ -171,8 +161,4 @@ struct Menu: View {
         NSPredicate(value: true) :
         NSPredicate(format: "title CONTAINS[cd] %@", searchText)
     }
-}
-
-#Preview {
-    Menu()
 }

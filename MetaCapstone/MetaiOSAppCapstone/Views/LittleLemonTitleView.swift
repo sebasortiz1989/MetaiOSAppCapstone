@@ -1,6 +1,12 @@
 import SwiftUI
 
 struct LittleLemonTitleView: View {
+    @Binding var isExpanded: Bool
+    
+    init(isExpanded: Binding<Bool>? = nil) {
+        self._isExpanded = isExpanded ?? .constant(false)
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Little Lemon")
@@ -28,6 +34,7 @@ struct LittleLemonTitleView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 
             }
+            .padding(.bottom, isExpanded ? 50 : 0)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 25)
