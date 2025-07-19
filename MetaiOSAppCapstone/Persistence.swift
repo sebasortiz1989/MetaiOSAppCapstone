@@ -18,5 +18,13 @@ struct PersistenceController {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Dish")
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         let _ = try? container.persistentStoreCoordinator.execute(deleteRequest, with: container.viewContext)
+        
+        do {
+            try container.viewContext.execute(deleteRequest)
+            try container.viewContext.save()
+            print("Database cleared successfully")
+        } catch {
+            print("Error clearing database: \(error)")
+        }
     }
 }

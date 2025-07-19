@@ -23,27 +23,82 @@ struct Menu: View {
                 .foregroundColor(.black)
                 .font(Font.system(size: 32, weight: .bold))
                 .padding()
-            
-            Text("Chicago")
-                .foregroundColor(.black)
-                .font(Font.system(size: 32, weight: .bold))
-                .padding()
-            
-            Text("Short description of the whole application.")
-                .foregroundColor(.black)
-                .font(Font.system(size: 24, weight: .regular))
-                .padding()
      
-            List(dishesT) { dish in
-                Text(dish.title ?? "No Title")
+            NavigationStack {
+                List {
+                    ForEach(dishesT) { dish in
+                        NavigationLink(value: dish) {
+                            HStack {
+                                Text("\(dish.title ?? "No Title") - $\(String(format: "%.2f", dish.price))")
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                                
+                                AsyncImage(url: URL(string: dish.image ?? "")) { phase in
+                                    switch phase {
+                                    case .empty:
+                                        ProgressView()
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50, height: 50)
+                                    case .failure:
+                                        Image(systemName: "photo")
+                                            .frame(width: 50, height: 50)
+                                    @unknown default:
+                                        Image(systemName: "photo")
+                                            .frame(width: 50, height: 50)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .navigationDestination(for: Dish.self) { dish in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(dish.title ?? "No Title")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                            
+                            AsyncImage(url: URL(string: dish.image ?? "")) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxWidth: .infinity, maxHeight: 200)
+                                case .failure:
+                                    Image(systemName: "photo")
+                                        .frame(maxWidth: .infinity, maxHeight: 200)
+                                @unknown default:
+                                    EmptyView()
+                                }
+                            }
+                            
+                            Text(dish.dishDescription ?? "No Description")
+                                .font(.body)
+                            
+                            Text("Price: $\(String(format: "%.2f", dish.price))")
+                                .font(.headline)
+                        }
+                        .padding()
+                    }
+                    .navigationTitle(dish.title ?? "Dish Details")
+                }
             }
+
         }
         .onAppear {
             Task {
-                do {
-                    menuItems = try await getMenuData()
-                } catch {
-                    print("Error fetching menu: \(error)")
+                if dishesT.isEmpty {
+                    do {
+                        menuItems = try await getMenuData()
+                    } catch {
+                        print("Error fetching menu: \(error)")
+                    }
                 }
             }
         }
