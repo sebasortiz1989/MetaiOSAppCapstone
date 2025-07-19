@@ -6,7 +6,7 @@ struct LittleLemonTitleView: View {
             Text("Little Lemon")
                 .font(.system(size: 42))
                 .fontWeight(.bold)
-                .foregroundColor(.littleLemonYellowColor)
+                .foregroundColor(.primary2)
             Text("Chicago")
                 .font(.system(size: 28))
                 .fontWeight(.bold)
@@ -32,11 +32,12 @@ struct LittleLemonTitleView: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 25)
         .padding(.vertical, 15)
-        .background(Color.littleLemonBackgroundGray)
+        .background(Color.primary1)
         .cornerRadius(15)
     }
 }
 
 #Preview {
     LittleLemonTitleView()
+        .padding()
 }

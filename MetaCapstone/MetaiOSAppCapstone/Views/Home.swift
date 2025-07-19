@@ -11,18 +11,41 @@ struct Home: View {
     let persistenceController = PersistenceController.shared
 
     var body: some View {
-        TabView {
-            Menu()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                .tabItem {
-                    Label("Menu", systemImage: "list.dash")
+        NavigationStack {
+            ScrollView  {
+                VStack {
+                    ZStack {
+                        Image("littleLemonLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 50, alignment: .center)
+                            .padding()
+                        
+                        HStack {
+                            Spacer()
+                            
+                            NavigationLink(destination: UserProfile()) {
+                                Image("profile-image-placeholder")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .padding(.trailing)
+                    }
+                    
+                    LittleLemonTitleView()
+                        .padding()
+                    
+                    Spacer()
+                    Menu().environment(\.managedObjectContext, persistenceController.container.viewContext)
+                        .frame(height: 400)
                 }
-            UserProfile()
-                .tabItem {
-                    Label("Profile", systemImage: "square.and.pencil")
-                }
+
+            }
+
         }
-        .navigationBarBackButtonHidden(true)
     }
 }
 

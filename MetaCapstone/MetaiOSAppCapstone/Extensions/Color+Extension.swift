@@ -33,11 +33,11 @@ extension Color {
         )
     }
     
-    static var littleLemonYellowColor: Color {
-        Color(hex: "#f5ce15")
+    static var primary1: Color {
+        Color(hex: "#495E57")
     }
-    
-    static var littleLemonBackgroundGray: Color {
-        Color(hex: "#4a5e57")
+
+    static var primary2: Color {
+        Color(hex: "#F5CE15")
     }
 }

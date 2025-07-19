@@ -29,12 +29,7 @@ struct Menu: View {
     }
     
     var body: some View {
-        VStack {
-            Text("Little Lemon Menu")
-                .foregroundColor(.black)
-                .font(Font.system(size: 32, weight: .bold))
-                .padding()
-     
+        VStack {    
             NavigationStack {
                 List {
                     ForEach(dishesT) { dish in

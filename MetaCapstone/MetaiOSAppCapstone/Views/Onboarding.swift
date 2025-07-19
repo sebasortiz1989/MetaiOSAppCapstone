@@ -19,21 +19,15 @@ struct Onboarding: View {
     @State var isLoggedIn: Bool = false
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                NavigationLink(
-                    destination: Home(),
-                    isActive: $isLoggedIn
-                ) {
-                    EmptyView()
-                }
-               
+        NavigationStack {
+            VStack {
+
                 Image("littleLemonLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200)
                     .padding()
-
+                
                 LittleLemonTitleView()
                 CustomTextField(placeholder: "First Name", text: $firstName)
                 
@@ -41,18 +35,19 @@ struct Onboarding: View {
                 
                 CustomTextField(placeholder: "Email", text: $email, keyboardType: .emailAddress)
                 
+                Spacer()
+                
                 CustomButton(
                     title: "Register",
-                    action:
-                    {
+                    action: {
                         if !firstName.isEmpty && !lastName.isEmpty && !email.isEmpty {
                             if isValidEmail(email) {
                                 UserDefaults.standard.set(firstName, forKey: kFirstName)
                                 UserDefaults.standard.set(lastName, forKey: kLastName)
                                 UserDefaults.standard.set(email, forKey: kEmail)
-
+                                
                                 print("Registration successful!")
-                                isLoggedIn = true
+                                isLoggedIn = true // Set isLoggedIn to true
                             } else {
                                 print("Invalid email")
                                 isLoggedIn = false
@@ -64,18 +59,21 @@ struct Onboarding: View {
                         
                         UserDefaults.standard.set(isLoggedIn, forKey: kIsLoggedIn)
                     },
-                    minWidth: 350)
+                    minWidth: 350
+                )
                 
                 Spacer()
             }
             .padding()
-            .onAppear(){
+            .onAppear() {
                 if UserDefaults.standard.bool(forKey: kIsLoggedIn) {
                     isLoggedIn = true
-                }
-                else {
+                } else {
                     isLoggedIn = false
                 }
+            }
+            .navigationDestination(isPresented: $isLoggedIn) {
+                Home()
             }
         }
     }

@@ -3,7 +3,7 @@ import SwiftUI
 struct CustomButton: View {
     let title: String
     let action: () -> Void
-    var backgroundColor: Color = .littleLemonYellowColor
+    var backgroundColor: Color = .primary2
     var textColor: Color = .black
     var font: Font = .title3
     var minWidth: CGFloat? = nil
