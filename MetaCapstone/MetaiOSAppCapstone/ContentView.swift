@@ -54,18 +54,6 @@ struct ContentView: View {
             }
         }
     }
-    
-    struct DishDetailView: View {
-        let item: Dish
-        
-        var body: some View {
-            VStack {
-                Text("Item Details")
-                Text("Timestamp: \(item.title ?? "default value")")
-                // Add more details here
-            }
-        }
-    }
 }
 
 #Preview {

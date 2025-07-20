@@ -132,6 +132,7 @@ struct UserProfile: View {
                         
                         Spacer()
                     }
+                    .padding(.horizontal)
                 }
                 
                 CustomButton(
