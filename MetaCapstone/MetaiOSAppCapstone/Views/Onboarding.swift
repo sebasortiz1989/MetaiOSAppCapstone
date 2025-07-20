@@ -10,6 +10,7 @@ import SwiftUI
 let kFirstName = "Seba"
 let kLastName = "Ortiz"
 let kEmail = "seba@gmail.com"
+let kphoneNumber = "+55 55 555 5555"
 let kIsLoggedIn = "kIsLoggedIn"
 
 struct Onboarding: View {
@@ -21,7 +22,6 @@ struct Onboarding: View {
     var body: some View {
         NavigationStack {
             VStack {
-
                 Image("littleLemonLogo")
                     .resizable()
                     .scaledToFit()
@@ -65,15 +65,11 @@ struct Onboarding: View {
                 Spacer()
             }
             .padding()
-            .onAppear() {
-                if UserDefaults.standard.bool(forKey: kIsLoggedIn) {
-                    isLoggedIn = true
-                } else {
-                    isLoggedIn = false
-                }
-            }
+            .onAppear(perform: {
+                isLoggedIn = UserDefaults.standard.bool(forKey: kIsLoggedIn)
+            })
             .navigationDestination(isPresented: $isLoggedIn) {
-                Home()
+                Home().navigationBarBackButtonHidden(true)
             }
         }
     }

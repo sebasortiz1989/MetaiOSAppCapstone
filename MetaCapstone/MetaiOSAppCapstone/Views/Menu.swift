@@ -18,90 +18,57 @@ struct Menu: View {
     ) private var dishesT: FetchedResults<Dish>
     
     var body: some View {
-        VStack {
-            NavigationStack {
-                VStack {
+        NavigationStack {
+            VStack {
+                Section {
                     ForEach(dishesT) { dish in
-                        NavigationLink(value: dish) {
-                            HStack(alignment: .center, spacing: 10) {
-                                VStack(alignment: .leading, spacing: 7) {
-                                    Text("\(dish.title ?? "")")
-                                        .font(.title3)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.black)
-                                    Text("\(dish.dishDescription ?? "")")
-                                        .font(.headline)
-                                        .foregroundStyle(.secondary)
-                                        .foregroundColor(.black)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                        .lineLimit(nil)
-                                    Text("$\(String(format: "%.2f", dish.price))")
-                                        .font(.title3)
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(Color.primary1)
-                                }
+                        HStack(alignment: .center, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text("\(dish.title ?? "")")
+                                    .font(.sectionTitle20)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.black)
+                                    .fontWeight(.bold)
                                 
-                                Spacer()
-                                AsyncImage(url: URL(string: dish.image ?? "")) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 70, height: 70)
-                                        .cornerRadius(10)
-                                } placeholder: {
-                                    ProgressView()
-                                }
+                                Text("\(dish.dishDescription ?? "")")
+                                    .font(.loadTextMedium18)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.black)
+                                    .fontWeight(.medium)
+                                
+                                Text("$\(String(format: "%.2f", dish.price))")
+                                    .font(.loadTextMedium18)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.black)
+                                    .fontWeight(.medium)
                             }
-                            .padding(.horizontal) // Add horizontal padding
-                            .padding(.vertical, 8) // Add vertical padding
-                        }
-                    }
-                    Spacer()
-                }
-                .navigationDestination(for: Dish.self) { dish in
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(dish.title ?? "No Title")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                        
-                        AsyncImage(url: URL(string: dish.image ?? "")) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                            case .success(let image):
+                            
+                            Spacer()
+                            AsyncImage(url: URL(string: dish.image ?? "")) { image in
                                 image
                                     .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: .infinity, maxHeight: 200)
-                            case .failure:
-                                Image(systemName: "photo")
-                                    .frame(maxWidth: .infinity, maxHeight: 200)
-                            @unknown default:
-                                EmptyView()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(10)
+                            } placeholder: {
+                                ProgressView()
                             }
                         }
-                        
-                        Text("\(dish.dishDescription ?? "")")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                            .foregroundColor(.black)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(nil)
-                        
-                        Text("Price: $\(String(format: "%.2f", dish.price))")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.primary1)
-                        
-                        Spacer()
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
                     }
-                    .padding()
-                    .navigationTitle(dish.title ?? "Dish Details")
+//                    .navigationDestination(for: Dish.self) { dish in
+//                        DishDetail()
+//                            .environmentObject(dish)
+//                    }
                 }
-                .onChange(of: searchText) {
-                    dishesT.nsPredicate = buildPredicate()
-                }
+                
+                Spacer()
             }
+        }
+
+        .onChange(of: searchText) {
+            dishesT.nsPredicate = buildPredicate()
         }
         .onAppear {
             Task {
