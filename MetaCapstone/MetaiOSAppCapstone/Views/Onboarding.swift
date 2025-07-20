@@ -19,8 +19,13 @@ struct Onboarding: View {
     @State var isLoggedIn: Bool = false
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             VStack {
+
+                NavigationLink(destination: Home().navigationBarBackButtonHidden(true),
+                               isActive: $isLoggedIn) {
+                    EmptyView()
+                }
 
                 Image("littleLemonLogo")
                     .resizable()
@@ -65,16 +70,9 @@ struct Onboarding: View {
                 Spacer()
             }
             .padding()
-            .onAppear() {
-                if UserDefaults.standard.bool(forKey: kIsLoggedIn) {
-                    isLoggedIn = true
-                } else {
-                    isLoggedIn = false
-                }
-            }
-            .navigationDestination(isPresented: $isLoggedIn) {
-                Home()
-            }
+            .onAppear(perform: {
+                isLoggedIn = UserDefaults.standard.bool(forKey: kIsLoggedIn)
+            })
         }
     }
     

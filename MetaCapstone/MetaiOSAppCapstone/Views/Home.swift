@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct Home: View {
+    @Environment(\.presentationMode) var presentationMode
     let persistenceController = PersistenceController.shared
     private let categories = ["Starters", "Mains", "Desserts", "Drinks"]
 
     @State private var searchText: String = ""
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ScrollView  {
                 VStack {
                     ZStack {
@@ -83,10 +84,13 @@ struct Home: View {
                         .environment(\.managedObjectContext, persistenceController.container.viewContext)
                         .frame(minHeight: 500)
                 }
-
             }
-
         }
+        .onAppear(perform: {
+            if !UserDefaults.standard.bool(forKey: kIsLoggedIn) {
+                presentationMode.wrappedValue.dismiss()
+            }
+        })
     }
 }
 

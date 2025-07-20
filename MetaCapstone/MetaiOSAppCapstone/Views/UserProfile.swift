@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct UserProfile: View {
-    @Environment(\.presentationMode) var presentation
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
+    @State private var isLoggedIn = UserDefaults.standard.bool(forKey: kIsLoggedIn)
     
     var body: some View {
         VStack {
@@ -31,12 +33,16 @@ struct UserProfile: View {
                 title: "LogOut",
                 action: {
                     UserDefaults.standard.set(false, forKey: kIsLoggedIn)
-                    self.presentation.wrappedValue.dismiss()
+                    isLoggedIn = false
+                    dismiss()
                 },
                 minWidth: 150)
                 .padding()
             
             Spacer()
+        }
+        .onChange(of: isLoggedIn) { newValue in
+            presentationMode.wrappedValue.dismiss()
         }
     }
 }
