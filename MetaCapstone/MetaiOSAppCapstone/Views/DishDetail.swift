@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DishDetail: View {
-    let dish: Dish
+    @EnvironmentObject private var dish: Dish
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {

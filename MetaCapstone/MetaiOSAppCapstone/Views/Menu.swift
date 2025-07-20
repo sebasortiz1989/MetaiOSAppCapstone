@@ -18,44 +18,51 @@ struct Menu: View {
     ) private var dishesT: FetchedResults<Dish>
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
-                ForEach(dishesT) { dish in
-                    HStack(alignment: .center, spacing: 10) {
-                        VStack(alignment: .leading, spacing: 7) {
-                            Text("\(dish.title ?? "")")
-                                .font(.sectionTitle20)
-                                .multilineTextAlignment(.leading)
-                                .foregroundStyle(.black)
-                                .fontWeight(.bold)
+                Section {
+                    ForEach(dishesT) { dish in
+                        HStack(alignment: .center, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text("\(dish.title ?? "")")
+                                    .font(.sectionTitle20)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.black)
+                                    .fontWeight(.bold)
+                                
+                                Text("\(dish.dishDescription ?? "")")
+                                    .font(.loadTextMedium18)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.black)
+                                    .fontWeight(.medium)
+                                
+                                Text("$\(String(format: "%.2f", dish.price))")
+                                    .font(.loadTextMedium18)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.black)
+                                    .fontWeight(.medium)
+                            }
                             
-                            Text("\(dish.dishDescription ?? "")")
-                                .font(.loadTextMedium18)
-                                .multilineTextAlignment(.leading)
-                                .foregroundStyle(.black)
-                                .fontWeight(.medium)
-                            
-                            Text("$\(String(format: "%.2f", dish.price))")
-                                .font(.loadTextMedium18)
-                                .multilineTextAlignment(.leading)
-                                .foregroundStyle(.black)
-                                .fontWeight(.medium)
+                            Spacer()
+                            AsyncImage(url: URL(string: dish.image ?? "")) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(10)
+                            } placeholder: {
+                                ProgressView()
+                            }
                         }
-                        
-                        Spacer()
-                        AsyncImage(url: URL(string: dish.image ?? "")) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 70, height: 70)
-                                .cornerRadius(10)
-                        } placeholder: {
-                            ProgressView()
-                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
                     }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
+//                    .navigationDestination(for: Dish.self) { dish in
+//                        DishDetail()
+//                            .environmentObject(dish)
+//                    }
                 }
+                
                 Spacer()
             }
         }
