@@ -26,19 +26,22 @@ struct Menu: View {
                             HStack(alignment: .center, spacing: 10) {
                                 VStack(alignment: .leading, spacing: 7) {
                                     Text("\(dish.title ?? "")")
-                                        .font(.title3)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.black)
+                                        .font(.sectionTitle20)
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundStyle(.black)
+                                        .fontWeight(.bold)
+                                    
                                     Text("\(dish.dishDescription ?? "")")
-                                        .font(.headline)
-                                        .foregroundStyle(.secondary)
-                                        .foregroundColor(.black)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                        .lineLimit(nil)
+                                        .font(.loadTextMedium18)
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundStyle(.black)
+                                        .fontWeight(.medium)
+         
                                     Text("$\(String(format: "%.2f", dish.price))")
-                                        .font(.title3)
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(Color.primary1)
+                                        .font(.loadTextMedium18)
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundStyle(.black)
+                                        .fontWeight(.medium)
                                 }
                                 
                                 Spacer()

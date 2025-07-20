@@ -61,8 +61,7 @@ struct Home: View {
 
                     VStack (alignment: .leading, spacing: 10) {
                         Text("ORDER FOR DELIVERY!")
-                            .font(.title3)
-                            .fontWeight(.bold)
+                            .font(.sectionTitle20)
                         
                         HStack(spacing: 12) {
                             ForEach(categories, id: \.self) { category in
@@ -72,7 +71,8 @@ struct Home: View {
                                     .background(Color.primary1.opacity(0.2))
                                     .foregroundStyle(Color.primary1)
                                     .cornerRadius(10)
-                                    .font(.system(size: 14, weight: .bold))
+                                    .font(.paragraphText16)
+                                    .fontWeight(.regular)
                             }
                         }
                     }
