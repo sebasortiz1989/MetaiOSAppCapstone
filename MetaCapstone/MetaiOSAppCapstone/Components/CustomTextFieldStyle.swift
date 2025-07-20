@@ -7,6 +7,7 @@ struct CustomTextField: View {
     
     var body: some View {
         TextField(placeholder, text: $text)
+            .font(.loadTextMedium18)
             .keyboardType(keyboardType)
             .padding(15)
             .background(

@@ -5,6 +5,7 @@ struct Menu: View {
     let persistenceController = PersistenceController.shared
     
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.presentationMode) var presentation
     
     @ObservedObject var dishesModel = DishesModel()
     @Binding var searchText: String
@@ -19,7 +20,7 @@ struct Menu: View {
     
     var body: some View {
         VStack {
-            NavigationStack {
+            NavigationView {
                 VStack {
                     ForEach(dishesT) { dish in
                         NavigationLink(value: dish) {
@@ -55,55 +56,72 @@ struct Menu: View {
                                     ProgressView()
                                 }
                             }
-                            .padding(.horizontal) // Add horizontal padding
-                            .padding(.vertical, 8) // Add vertical padding
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
                         }
                     }
                     Spacer()
                 }
-                .navigationDestination(for: Dish.self) { dish in
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(dish.title ?? "No Title")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                        
-                        AsyncImage(url: URL(string: dish.image ?? "")) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: .infinity, maxHeight: 200)
-                            case .failure:
-                                Image(systemName: "photo")
-                                    .frame(maxWidth: .infinity, maxHeight: 200)
-                            @unknown default:
-                                EmptyView()
-                            }
-                        }
-                        
-                        Text("\(dish.dishDescription ?? "")")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                            .foregroundColor(.black)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(nil)
-                        
-                        Text("Price: $\(String(format: "%.2f", dish.price))")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.primary1)
-                        
-                        Spacer()
-                    }
-                    .padding()
-                    .navigationTitle(dish.title ?? "Dish Details")
-                }
                 .onChange(of: searchText) {
                     dishesT.nsPredicate = buildPredicate()
                 }
+            }
+            .navigationDestination(for: Dish.self) { dish in
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Button(action: {
+                            self.presentation.wrappedValue.dismiss()
+                        }) {
+                            Image(systemName: "arrow.left")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .frame(width: 35, height: 35)
+                                .background(Circle().fill(Color.primary1))
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    
+                    Text(dish.title ?? "No Title")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    
+                    AsyncImage(url: URL(string: dish.image ?? "")) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity, maxHeight: 200)
+                        case .failure:
+                            Image(systemName: "photo")
+                                .frame(maxWidth: .infinity, maxHeight: 200)
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                    
+                    Text("\(dish.dishDescription ?? "")")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                        .foregroundColor(.black)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(nil)
+                    
+                    Text("Price: $\(String(format: "%.2f", dish.price))")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.primary1)
+                    
+                    Spacer()
+                }
+                .padding()
+                .navigationTitle(dish.title ?? "Dish Details")
+                .navigationBarBackButtonHidden(true)
             }
         }
         .onAppear {

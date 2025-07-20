@@ -28,7 +28,7 @@ struct Home: View {
                         HStack {
                             Spacer()
                             
-                            NavigationLink(destination: UserProfile()) {
+                            NavigationLink(destination: UserProfile().navigationBarBackButtonHidden(true)) {
                                 Image("profile-image-placeholder2")
                                     .resizable()
                                     .scaledToFit()

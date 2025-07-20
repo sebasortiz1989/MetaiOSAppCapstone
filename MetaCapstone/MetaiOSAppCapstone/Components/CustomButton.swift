@@ -5,7 +5,7 @@ struct CustomButton: View {
     let action: () -> Void
     var backgroundColor: Color = .primary2
     var textColor: Color = .black
-    var font: Font = .title3
+    var font: Font = .paragraphText16
     var minWidth: CGFloat? = nil
     var minHeight: CGFloat? = nil
     
@@ -20,7 +20,7 @@ struct CustomButton: View {
                 .cornerRadius(20)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.black, lineWidth: 3)
+                        .stroke(Color.black, lineWidth: 2)
                 )
         }
     }
