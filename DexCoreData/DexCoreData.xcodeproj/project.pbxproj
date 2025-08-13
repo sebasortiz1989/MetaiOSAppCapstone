@@ -57,6 +57,7 @@
 				Assets.xcassets,
 				Persistence.swift,
 				Pokemon.swift,
+				samplepokemon.json,
 			);
 			target = B74D809E2E22FBE200E270F5 /* DexWidgetExtension */;
 		};
