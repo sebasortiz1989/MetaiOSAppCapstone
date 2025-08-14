@@ -7,13 +7,14 @@
 
 import Foundation
 
+@MainActor
 struct FetchService {
     enum FetchError: Error {
         case badResponse
     }
     
     private let baseURL = URL(string: "https://pokeapi.co/api/v2/pokemon")!
-    
+
     func fetchPokemons(_ id: Int) async throws -> Pokemon {
         let fetchURL = baseURL.appending(path: String(id))
         
