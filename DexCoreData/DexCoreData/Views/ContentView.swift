@@ -18,22 +18,18 @@ struct ContentView: View {
     let fetcher = FetchService()
     let totalNumberOfPokemons: Int = 151
     
-    private var dynamicPredicate: NSPredicate {
-        var predicates: [NSPredicate] = []
-        
-        // Search predicate
-        if (!searchText.isEmpty) {
-            predicates.append(NSPredicate(format: "name contains[c] %@", searchText))
+    private var dynamicPredicate: Predicate<Pokemon> {
+        #Predicate<Pokemon>{pokemon in
+            if filterByFavorite && !searchText.isEmpty {
+                pokemon.favorite && pokemon.name.localizedStandardContains(searchText)
+            } else if !searchText.isEmpty {
+                pokemon.name.localizedStandardContains(searchText)
+            } else if filterByFavorite {
+                pokemon.favorite
+            } else {
+                true
+            }
         }
-        
-        // Filter by favorite predicate
-        if filterByFavorite {
-            predicates.append(NSPredicate(format: "favorite == %d", true))
-        }
-        
-        // Combine predicates
-        
-        return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
     }
     
     var body: some View {
@@ -52,7 +48,7 @@ struct ContentView: View {
             NavigationStack {
                 List {
                     Section {
-                        ForEach(pokedex) { pokemon in
+                        ForEach((try? pokedex.filter(dynamicPredicate)) ?? pokedex) { pokemon in
                             NavigationLink(value: pokemon) {
                                 HStack {
                                     if (pokemon.sprite == nil) {
@@ -136,18 +132,21 @@ struct ContentView: View {
                             }
                         }
                     }
-
+                    
                 }
                 .navigationTitle("Pokedex")
                 .searchable(text: $searchText, prompt: "Find a Pokemon")
                 .autocorrectionDisabled()
+                .animation(.default, value: searchText)
                 .navigationDestination(for: Pokemon.self) { pokemon in
                     PokemonDetail(pokemon: pokemon)
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
-                            filterByFavorite.toggle()
+                            withAnimation {
+                                filterByFavorite.toggle()
+                            }
                         } label: {
                             Label("Filter By Favorites", systemImage: filterByFavorite ? "star.fill" :"star")
                         }
@@ -171,7 +170,7 @@ struct ContentView: View {
                     print("Error: \(error)")
                 }
             }
-
+            
             storeSprintes();
         }
     }
